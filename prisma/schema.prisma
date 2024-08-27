@@ -7,15 +7,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  USER
+}
+
 model User {
-  id    Int    @default(autoincrement())
-  email String @unique
-  name  String @map("firstName")
-  role  String?
+  id      Int      @id @default(autoincrement())
+  email   String   @unique
+  name    String   @map("firstName")
+  role    Role?    @default(USER)
+  Profile Profile?
 
-  @@map("users")
-
-  @@id([email,name])
+  // @@id([email, name]) // Each model must have at most one id criteria. You can't have `@id` and `@@id` at the same time.Prisma
   @@unique([name, role])
-  @@index([id,email])
+  @@index([id, email])
+  @@map("users")
+}
+
+model Profile {
+  id     Int    @id @default(autoincrement())
+  bio    String
+  userId Int    @unique
+  user   User   @relation(fields: [userId], references: [id])
 }
